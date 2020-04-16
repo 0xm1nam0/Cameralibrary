@@ -201,7 +201,6 @@ public class CameraSource implements Camera.PreviewCallback {
                 frameListener.onNewFrame(data,camera,preWidth,preHeight, ImageFormat.NV21);
             }
         }
-        camera.addCallbackBuffer(data);
     }
 
     public int setFlashTorchMode(boolean on) {

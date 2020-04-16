@@ -108,7 +108,7 @@ public class CameraView extends BaseGLView {
         }
     }
 
-    public void setBack(boolean back) {
+    public void setCameraDirection(boolean back) {
         isBack = back;
     }
 }

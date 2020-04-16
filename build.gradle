@@ -38,8 +38,8 @@ task clean(type: Delete) {
 ext {
 //    JavaVersion.VERSION_1_8 = '1.8'
 //    JavaVersion.VERSION_1_8 = '1.8'
-    releaseVersionCode = 1
-    releaseVersionName = '1.0.0'
+    releaseVersionCode = 2
+    releaseVersionName = '1.0.1'
 
     androidCompileSdkVersion = 26
     androidBuildToolsVersion = '26.1.0'
