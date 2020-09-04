@@ -8,6 +8,8 @@ import android.view.SurfaceHolder;
 
 
 import com.hiscene.camera.core.CameraEngine;
+import com.hiscene.camera.listener.ICameraEngine;
+import com.hiscene.camera.vision.BaseVision;
 import com.minamo.utils.LoggerUtils;
 import com.minamo.utils.OpenglUtil;
 import com.hiscene.camera.renderer.RendererController;
@@ -15,18 +17,18 @@ import com.hiscene.camera.renderer.RendererController;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
- /**
-   * @author Minamo
-   * @e-mail kleinminamo@gmail.com
-   * @time   2019/12/10
-   * @des    CameraView
-   */
+/**
+ * @author Minamo
+ * @e-mail kleinminamo@gmail.com
+ * @time 2019/12/10
+ * @des CameraView
+ */
 public class CameraView extends BaseGLView {
 
     boolean isBack = false;
-     CameraEngine cameraEngine;
+    ICameraEngine cameraEngine;
 
-    public CameraView(Context context) {
+    public CameraView(Context context,ICameraEngine cameraEngine) {
         super(context);
         setEGLContextClientVersion(2);
         CameraRenderer mRenderer = new CameraRenderer();
@@ -34,9 +36,12 @@ public class CameraView extends BaseGLView {
         getHolder().setFormat(PixelFormat.TRANSPARENT);
         setRenderer(mRenderer);
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-        cameraEngine = new CameraEngine(context,true);
+        this.cameraEngine = cameraEngine;
     }
 
+    public void setVision(BaseVision vision) {
+        cameraEngine.setOnNewFrameListener(vision);
+    }
 
     public void pause() {
         cameraEngine.stopPreview();
@@ -45,13 +50,13 @@ public class CameraView extends BaseGLView {
     }
 
     public void swtich() {
-        if(isBack){
-            cameraEngine.openCamera(false,null);
-            LoggerUtils.i("CAMERA_DIRECTION_FRONT swtich:"+isBack);
+        if (isBack) {
+            cameraEngine.openCamera(false, null);
+            LoggerUtils.i("CAMERA_DIRECTION_FRONT swtich:" + isBack);
             isBack = false;
-        }else {
-            cameraEngine.openCamera(true,null);
-            LoggerUtils.i("CAMERA_DIRECTION_BACK swtich:"+isBack);
+        } else {
+            cameraEngine.openCamera(true, null);
+            LoggerUtils.i("CAMERA_DIRECTION_BACK swtich:" + isBack);
             isBack = true;
         }
         int startPreview = cameraEngine.startPreview();
@@ -60,10 +65,10 @@ public class CameraView extends BaseGLView {
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         super.surfaceCreated(holder);
-        if(isBack){
-            cameraEngine.openCamera(false,null);
-        }else {
-            cameraEngine.openCamera(true,null);
+        if (isBack) {
+            cameraEngine.openCamera(false, null);
+        } else {
+            cameraEngine.openCamera(true, null);
         }
         LoggerUtils.i("CameraView surfaceCreated");
     }
@@ -92,7 +97,7 @@ public class CameraView extends BaseGLView {
             RendererController.Instance().configScreen(width, height);
 //            cameraEngine.setPreviewSize(size.width, size.height);
             int startPreview = cameraEngine.startPreview();
-            LoggerUtils.i("Camera startPreview : "+startPreview);
+            LoggerUtils.i("Camera startPreview : " + startPreview);
 //            cameraEngine.setFocusMode(0);
 //            GLES20.glDisable(GLES20.GL_CULL_FACE);
         }
