@@ -4,6 +4,7 @@ import android.hardware.Camera;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
+import com.hiscene.camera.listener.ICameraEngine;
 import com.minamo.thread.QueueRunnable;
 import com.minamo.utils.LoggerUtils;
 import com.minamo.utils.OpenglUtil;
@@ -16,7 +17,7 @@ import java.nio.Buffer;
    * @time   2019/12/10
    * @des    SourceRenderer
    */
-abstract class SourceRenderer extends QueueRunnable {
+abstract class SourceRenderer extends QueueRunnable implements ICameraEngine.OnNewFrameListener {
 
 
     protected static int screenWidth = -1;
@@ -130,7 +131,6 @@ abstract class SourceRenderer extends QueueRunnable {
     }
 
     abstract void draw();
-    abstract void setNV21Data(byte[] data, final Camera camera, int width, int height);
 
     int[] oldGLBind = new int[10];
 

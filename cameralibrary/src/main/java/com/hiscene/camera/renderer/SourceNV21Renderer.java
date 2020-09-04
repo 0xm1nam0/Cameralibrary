@@ -3,6 +3,7 @@ package com.hiscene.camera.renderer;
 import android.hardware.Camera;
 import android.opengl.GLES20;
 
+import com.hiscene.camera.listener.ICameraEngine;
 import com.minamo.utils.OpenglUtil;
 
 import java.nio.ByteBuffer;
@@ -103,22 +104,6 @@ class SourceNV21Renderer extends SourceRenderer {
         isReady = ready;
     }
 
-    public void setNV21Data(final byte[] data, final Camera camera, int width, int height) {
-//        LogUtil.Logi("Thread:" + Thread.currentThread().getName() + "  setNV21Data.nv21Data:"  + data[0]+"/"+data[data.length-1]);
-        if (!bufferInit) {
-            initFrameRenderBuffer((width / 2) * (height / 2));
-        }
-        isReady = true;
-        if (runnableQueue.isEmpty()) {
-            queueEvent(new Runnable() {
-                @Override
-                public void run() {
-                    putRenderBuffer(data);
-                    camera.addCallbackBuffer(data);
-                }
-            });
-        }
-    }
 
     public void putRenderBuffer(byte[] data) {
         frameRenderBuffer.position(0);
@@ -221,4 +206,29 @@ class SourceNV21Renderer extends SourceRenderer {
 //        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
 //        GLES20.glUseProgram(0);
     }
-}
+
+     @Override
+     public void onNewFrame(byte[] data, int width, int height, int ImageFormat, ICameraEngine.BufferCallback bufferCallback) {
+
+//        LogUtil.Logi("Thread:" + Thread.currentThread().getName() + "  setNV21Data.nv21Data:"  + data[0]+"/"+data[data.length-1]);
+         if (!bufferInit) {
+             initFrameRenderBuffer((width / 2) * (height / 2));
+         }
+         isReady = true;
+         if (runnableQueue.isEmpty()) {
+             queueEvent(new Runnable() {
+                 @Override
+                 public void run() {
+                     putRenderBuffer(data);
+                     if(bufferCallback!=null)
+                        bufferCallback.addCallbackBuffer(data);
+                 }
+             });
+         }
+     }
+
+     @Override
+     public void onError(int error) {
+
+     }
+ }

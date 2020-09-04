@@ -1,9 +1,6 @@
 package com.hiscene.camera.vision;
 
-import android.hardware.Camera;
-
-import com.hiscene.camera.core.CameraSource;
-import com.hiscene.camera.listener.NewFrameListener;
+import com.hiscene.camera.listener.ICameraEngine;
 import com.hiscene.camera.renderer.RendererController;
 import com.minamo.thread.LoopThread;
 
@@ -14,9 +11,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Minamo
  * @e-mail kleinminamo@gmail.com
  * @time 2019/11/1
- * @des  视觉模块基类
+ * @des 视觉模块基类
  */
-public abstract class BaseVision extends LoopThread implements IVision, NewFrameListener {
+public abstract class BaseVision extends LoopThread implements IVision, ICameraEngine.OnNewFrameListener {
     protected ByteBuffer recognizerBuffer = null;
     protected boolean bufferInit = false;
     protected ReentrantLock lock = new ReentrantLock();
@@ -35,7 +32,7 @@ public abstract class BaseVision extends LoopThread implements IVision, NewFrame
 
 
     @Override
-    public void onNewFrame(byte[] data, Camera camera, int width, int height, int type) {
+    public void onNewFrame(byte[] data, int width, int height, int type, ICameraEngine.BufferCallback bufferCallback) {
         frameWidth = width;
         frameHeight = height;
         if (!bufferInit) {
@@ -55,12 +52,16 @@ public abstract class BaseVision extends LoopThread implements IVision, NewFrame
         } else if (processState == State.TRACKING) {
             tracking(data, width, height);
         }
-        RendererController.Instance().onFrame(data, camera, width, height);
+        RendererController.Instance().onNewFrame(data, width, height, type, bufferCallback);
+    }
+    
+    @Override
+    public void onError(int error) {
+
     }
 
     @Override
     public void setup() {
-        CameraSource.Instance().setNewFrameListener(this);
         init();
     }
 

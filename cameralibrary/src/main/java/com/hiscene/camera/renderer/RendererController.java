@@ -2,13 +2,29 @@ package com.hiscene.camera.renderer;
 
 import android.hardware.Camera;
 
- /**
+import com.hiscene.camera.listener.ICameraEngine;
+
+/**
    * @author Minamo
    * @e-mail kleinminamo@gmail.com
    * @time   2019/12/10
    * @des    RendererController
    */
-public class RendererController {
+public class RendererController implements ICameraEngine.OnNewFrameListener {
+    @Override
+    public void onNewFrame(byte[] data, int width, int height, int imageFormat, ICameraEngine.BufferCallback bufferCallback) {
+
+        synchronized (nv21Renderer){
+            nv21Renderer.setPictureSize(width,height);
+            nv21Renderer.onNewFrame(data,width,height,imageFormat,bufferCallback);
+        }
+    }
+
+    @Override
+    public void onError(int error) {
+
+    }
+
     private static class SingletonHolder {
         static final RendererController _instance = new RendererController();
     }
@@ -58,13 +74,6 @@ public class RendererController {
     public void drawVideoBackground(){
         synchronized (nv21Renderer){
             nv21Renderer.draw();
-        }
-    }
-
-    public void onFrame(byte[] data, Camera camera, int width, int height) {
-        synchronized (nv21Renderer){
-            nv21Renderer.setPictureSize(width,height);
-            nv21Renderer.setNV21Data(data,camera,width,height);
         }
     }
 }

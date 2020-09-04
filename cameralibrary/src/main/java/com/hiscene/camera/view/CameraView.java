@@ -7,9 +7,9 @@ import android.opengl.GLSurfaceView;
 import android.view.SurfaceHolder;
 
 
+import com.hiscene.camera.core.CameraEngine;
 import com.minamo.utils.LoggerUtils;
 import com.minamo.utils.OpenglUtil;
-import com.hiscene.camera.core.CameraSource;
 import com.hiscene.camera.renderer.RendererController;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -24,6 +24,7 @@ import javax.microedition.khronos.opengles.GL10;
 public class CameraView extends BaseGLView {
 
     boolean isBack = false;
+     CameraEngine cameraEngine;
 
     public CameraView(Context context) {
         super(context);
@@ -33,35 +34,36 @@ public class CameraView extends BaseGLView {
         getHolder().setFormat(PixelFormat.TRANSPARENT);
         setRenderer(mRenderer);
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        cameraEngine = new CameraEngine(context,true);
     }
 
 
     public void pause() {
-        CameraSource.Instance().stopPreview();
-        CameraSource.Instance().closeCamera();
+        cameraEngine.stopPreview();
+        cameraEngine.closeCamera();
         LoggerUtils.i("CameraSource.pause");
     }
 
     public void swtich() {
         if(isBack){
-            CameraSource.Instance().openCamera(CameraSource.CAMERA_DIRECTION_FRONT);
+            cameraEngine.openCamera(false,null);
             LoggerUtils.i("CAMERA_DIRECTION_FRONT swtich:"+isBack);
             isBack = false;
         }else {
-            CameraSource.Instance().openCamera(CameraSource.CAMERA_DIRECTION_BACK);
+            cameraEngine.openCamera(true,null);
             LoggerUtils.i("CAMERA_DIRECTION_BACK swtich:"+isBack);
             isBack = true;
         }
-        int startPreview = CameraSource.Instance().startPreview();
+        int startPreview = cameraEngine.startPreview();
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         super.surfaceCreated(holder);
         if(isBack){
-            CameraSource.Instance().openCamera(CameraSource.CAMERA_DIRECTION_BACK);
+            cameraEngine.openCamera(false,null);
         }else {
-            CameraSource.Instance().openCamera(CameraSource.CAMERA_DIRECTION_FRONT);
+            cameraEngine.openCamera(true,null);
         }
         LoggerUtils.i("CameraView surfaceCreated");
     }
@@ -69,8 +71,8 @@ public class CameraView extends BaseGLView {
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         super.surfaceDestroyed(holder);
-        CameraSource.Instance().stopPreview();
-        CameraSource.Instance().closeCamera();
+        cameraEngine.stopPreview();
+        cameraEngine.closeCamera();
         LoggerUtils.i("CameraView surfaceDestroyed");
     }
 
@@ -88,10 +90,10 @@ public class CameraView extends BaseGLView {
             LoggerUtils.i("CameraView onSurfaceChanged");
             GLES20.glViewport(0, 0, width, height);
             RendererController.Instance().configScreen(width, height);
-//            CameraSource.Instance().setPreviewSize(size.width, size.height);
-            int startPreview = CameraSource.Instance().startPreview();
+//            cameraEngine.setPreviewSize(size.width, size.height);
+            int startPreview = cameraEngine.startPreview();
             LoggerUtils.i("Camera startPreview : "+startPreview);
-//            CameraSource.Instance().setFocusMode(0);
+//            cameraEngine.setFocusMode(0);
 //            GLES20.glDisable(GLES20.GL_CULL_FACE);
         }
 
