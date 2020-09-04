@@ -10,6 +10,9 @@ import android.graphics.SurfaceTexture;
  * @des
  */
 public interface ICameraEngine {
+
+    int openCamera(boolean isFront);
+
     int openCamera(boolean isFront, SurfaceTexture surfaceTexture);
 
     int closeCamera();

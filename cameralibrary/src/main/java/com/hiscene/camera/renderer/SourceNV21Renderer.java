@@ -216,13 +216,10 @@ class SourceNV21Renderer extends SourceRenderer {
          }
          isReady = true;
          if (runnableQueue.isEmpty()) {
-             queueEvent(new Runnable() {
-                 @Override
-                 public void run() {
-                     putRenderBuffer(data);
-                     if(bufferCallback!=null)
-                        bufferCallback.addCallbackBuffer(data);
-                 }
+             queueEvent(() -> {
+                 putRenderBuffer(data);
+                 if(bufferCallback!=null)
+                    bufferCallback.addCallbackBuffer(data);
              });
          }
      }

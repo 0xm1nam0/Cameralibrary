@@ -54,7 +54,7 @@ public abstract class BaseVision extends LoopThread implements IVision, ICameraE
         }
         RendererController.Instance().onNewFrame(data, width, height, type, bufferCallback);
     }
-    
+
     @Override
     public void onError(int error) {
 

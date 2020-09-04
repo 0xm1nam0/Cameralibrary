@@ -51,11 +51,11 @@ public class CameraView extends BaseGLView {
 
     public void swtich() {
         if (isBack) {
-            cameraEngine.openCamera(false, null);
+            cameraEngine.openCamera(false);
             LoggerUtils.i("CAMERA_DIRECTION_FRONT swtich:" + isBack);
             isBack = false;
         } else {
-            cameraEngine.openCamera(true, null);
+            cameraEngine.openCamera(true);
             LoggerUtils.i("CAMERA_DIRECTION_BACK swtich:" + isBack);
             isBack = true;
         }
@@ -66,9 +66,9 @@ public class CameraView extends BaseGLView {
     public void surfaceCreated(SurfaceHolder holder) {
         super.surfaceCreated(holder);
         if (isBack) {
-            cameraEngine.openCamera(false, null);
+            cameraEngine.openCamera(false);
         } else {
-            cameraEngine.openCamera(true, null);
+            cameraEngine.openCamera(true);
         }
         LoggerUtils.i("CameraView surfaceCreated");
     }

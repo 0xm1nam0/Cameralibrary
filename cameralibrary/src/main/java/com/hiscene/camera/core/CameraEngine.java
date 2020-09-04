@@ -142,6 +142,12 @@ public class CameraEngine implements ICameraEngine {
         return preViewHeight;
     }
 
+    @Override
+    public int openCamera(boolean isFront) {
+        SurfaceTexture surfaceTexture = new SurfaceTexture(-1);
+        return openCamera(isFront,surfaceTexture);
+    }
+
     /**
      * 打开相机
      *
@@ -162,7 +168,9 @@ public class CameraEngine implements ICameraEngine {
             setParameters();
             setCameraCallback();
             mSurfaceTexture = surfaceTexture;
-            camera.setPreviewTexture(mSurfaceTexture);
+            if (mSurfaceTexture != null) {
+                camera.setPreviewTexture(mSurfaceTexture);
+            }
             //有些设备，设置分辨率与实际使用分辨率不同（例如华为 Meta7 设置 1080P ,实际使用的为　480P）
             Camera.Size size = camera.getParameters().getPreviewSize();
             preViewWidth = size.width;

@@ -3,6 +3,7 @@ package com.hiscene.camera.vision;
 
 import android.graphics.Rect;
 
+import com.blankj.utilcode.util.LogUtils;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
@@ -48,7 +49,7 @@ public class ZxingVision extends BaseVision {
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
             try {
                 result = multiFormatReader.decodeWithState(bitmap);
-                LoggerUtils.i("====  qr result: " + result + "====  width: " + width + "====  height: " + height);
+                LogUtils.i("====  qr result: " + result + "====  width: " + width + "====  height: " + height);
 
                 if (mOnQrRecognizeListener != null) {
                     need2Recognize = mOnQrRecognizeListener.OnRecognize(result);
@@ -76,8 +77,8 @@ public class ZxingVision extends BaseVision {
         decodeFormats.addAll(DecodeFormatManager.ONE_D_FORMATS);
         // TODO: 2019/10/29
         decodeFormats.add(BarcodeFormat.CODE_128);
-//        decodeFormats.addAll(DecodeFormatManager.QR_CODE_FORMATS);
-//        decodeFormats.addAll(DecodeFormatManager.DATA_MATRIX_FORMATS);
+        decodeFormats.addAll(DecodeFormatManager.QR_CODE_FORMATS);
+        decodeFormats.addAll(DecodeFormatManager.DATA_MATRIX_FORMATS);
 
         hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
 /*        if (characterSet != null) {
@@ -119,7 +120,7 @@ public class ZxingVision extends BaseVision {
 //            rect.set(width/4, height*2/6, width*3/4, height*4/6);
             rect.set(0, 0, width, height);
         }
-//        LoggerUtils.i("====  QR FramingRectInPreview: ====  left: " + rect.left + "====  top: " + rect.top+ "====  width: " + rect.width()+ "====  height: " + rect.height());
+//        LogUtils.i("====  QR FramingRectInPreview: ====  left: " + rect.left + "====  top: " + rect.top+ "====  width: " + rect.width()+ "====  height: " + rect.height());
         // Go ahead and assume it's YUV rather than die.
         return new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top, rect.width(), rect.height());
     }
