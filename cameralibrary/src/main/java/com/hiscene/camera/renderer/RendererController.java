@@ -1,22 +1,20 @@
 package com.hiscene.camera.renderer;
 
-import android.hardware.Camera;
-
 import com.hiscene.camera.listener.ICameraEngine;
 
 /**
-   * @author Minamo
-   * @e-mail kleinminamo@gmail.com
-   * @time   2019/12/10
-   * @des    RendererController
-   */
+ * @author Minamo
+ * @e-mail kleinminamo@gmail.com
+ * @time 2019/12/10
+ * @des RendererController
+ */
 public class RendererController implements ICameraEngine.OnNewFrameListener {
     @Override
     public void onNewFrame(byte[] data, int width, int height, int imageFormat, ICameraEngine.BufferCallback bufferCallback) {
-
-        synchronized (nv21Renderer){
-            nv21Renderer.setPictureSize(width,height);
-            nv21Renderer.onNewFrame(data,width,height,imageFormat,bufferCallback);
+        if (yuvRenderer == null) return;
+        synchronized (yuvRenderer) {
+            yuvRenderer.setPictureSize(width, height);
+            yuvRenderer.onNewFrame(data, width, height, imageFormat, bufferCallback);
         }
     }
 
@@ -29,51 +27,52 @@ public class RendererController implements ICameraEngine.OnNewFrameListener {
         static final RendererController _instance = new RendererController();
     }
 
-    RendererController(){
+    RendererController() {
 
     }
 
-    public void init(){
-        nv21Renderer = new SourceNV21Renderer();
-        if(orientation != -1){
-            nv21Renderer.configOrientation(orientation);
+    public void init() {
+        yuvRenderer = new SourceYuvRenderer();
+        if (orientation != -1) {
+            yuvRenderer.configOrientation(orientation);
         }
     }
 
     private int orientation = -1;
-    private SourceRenderer nv21Renderer;
+    private SourceRenderer yuvRenderer;
 
     public boolean isTextureInit() {
-        return nv21Renderer.isTextureInit();
-    }
-    public void release(){
-        nv21Renderer.resetTextureTag();
+        return yuvRenderer.isTextureInit();
     }
 
-    public void updateCameraLabel(){
-        nv21Renderer.updateCameraLabel();
+    public void release() {
+        yuvRenderer.resetTextureTag();
     }
 
-    public static RendererController Instance(){
+    public void updateCameraLabel() {
+        yuvRenderer.updateCameraLabel();
+    }
+
+    public static RendererController Instance() {
         return SingletonHolder._instance;
     }
 
-    public void configScreen(int width,int height){
-        synchronized (nv21Renderer){
-            nv21Renderer.configScreen(width,height);
+    public void configScreen(int width, int height) {
+        synchronized (yuvRenderer) {
+            yuvRenderer.configScreen(width, height);
         }
     }
 
-    public void configOrientation(int ori){
+    public void configOrientation(int ori) {
         orientation = ori;
-        if(nv21Renderer!=null){
-            nv21Renderer.configOrientation(ori);
+        if (yuvRenderer != null) {
+            yuvRenderer.configOrientation(ori);
         }
     }
 
-    public void drawVideoBackground(){
-        synchronized (nv21Renderer){
-            nv21Renderer.draw();
+    public void drawVideoBackground() {
+        synchronized (yuvRenderer) {
+            yuvRenderer.draw();
         }
     }
 }
