@@ -64,8 +64,8 @@ class SourceYuvRenderer extends SourceRenderer {
             "yuv.y = texture2D(videoFrameUV, texCoord).a - 0.5;\n" +
             "yuv.z = texture2D(videoFrameUV, texCoord).r - 0.5;\n" +
             "}else if(yuvMode == 3.0){\n" +//nv12
-            "yuv.z = texture2D(videoFrameUV, texCoord).r - 0.5;\n" +
-            "yuv.y = texture2D(videoFrameUV, texCoord).a - 0.5;\n" +
+            "yuv.z = texture2D(videoFrameUV, texCoord).a - 0.5;\n" +
+            "yuv.y = texture2D(videoFrameUV, texCoord).r - 0.5;\n" +
             "}else if(yuvMode == 4.0){\n" +//I420
             "yuv.y = texture2D(videoFrameUV, texCoord).a - 0.5;\n" +
             "yuv.z = texture2D(videoFrameV, texCoord).a - 0.5;\n" +
