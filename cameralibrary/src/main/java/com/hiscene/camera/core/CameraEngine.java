@@ -544,7 +544,7 @@ public class CameraEngine implements ICameraEngine {
             return;
         }
         if (this.newFrameListener != null) {
-            this.newFrameListener.onNewFrame(data, preViewWidth, preViewHeight, ImageFormat.NV21, buff -> {
+            this.newFrameListener.onNewFrame(data, preViewWidth, preViewHeight, ImageRendererFormat.NV21, buff -> {
                 if (camera != null) {
                     camera.addCallbackBuffer(buff);
                 }

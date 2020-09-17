@@ -2,21 +2,22 @@ package com.hiscene.camera.renderer;
 
 import android.opengl.GLES20;
 
-import com.hiscene.camera.core.ImageFormat;
+import com.blankj.utilcode.util.LogUtils;
+import com.hiscene.camera.core.ImageRendererFormat;
 import com.hiscene.camera.listener.ICameraEngine;
 import com.minamo.utils.OpenglUtil;
 
 import java.nio.ByteBuffer;
 
- /**
-   * @author Minamo
-   * @e-mail kleinminamo@gmail.com
-   * @time   2019/12/10
-   * @des    SourceNV21Renderer
-   */
+/**
+ * @author Minamo
+ * @e-mail kleinminamo@gmail.com
+ * @time 2019/12/10
+ * @des SourceNV21Renderer
+ */
 class SourceYuvRenderer extends SourceRenderer {
 
-    float yuvMode = ImageFormat.NV21;
+    int yuvMode = ImageRendererFormat.NV21;
     /*
      * camera shader handles
      */
@@ -48,7 +49,8 @@ class SourceYuvRenderer extends SourceRenderer {
             "gl_Position = modelViewProjectionMatrix * vertexPosition;\n" +
             "texCoord = vertexTexCoord;\n" +
             "}";
-    private String FRAGMENT_SHADER = "uniform sampler2D videoFrameY;\n" +
+    private String FRAGMENT_SHADER = "precision highp float;\n" +
+            "uniform sampler2D videoFrameY;\n" +
             "uniform sampler2D videoFrameUV;\n" +
             "uniform sampler2D videoFrameV;\n" +
             "uniform float yuvMode;\n" +
@@ -59,17 +61,17 @@ class SourceYuvRenderer extends SourceRenderer {
             "lowp vec3 rgb; \n" +
             "yuv.x = texture2D(videoFrameY, texCoord).r;\n" +
             "if(yuvMode == 2.0){\n" +//NV21
-            "yuv.y = texture2D(videoFrameUV, texCoord).x - 0.5;\n" +
-            "yuv.z = texture2D(videoFrameUV, texCoord).y - 0.5;\n" +
+            "yuv.y = texture2D(videoFrameUV, texCoord).a - 0.5;\n" +
+            "yuv.z = texture2D(videoFrameUV, texCoord).r - 0.5;\n" +
             "}else if(yuvMode == 3.0){\n" +//nv12
-            "yuv.z = texture2D(videoFrameUV, texCoord).x - 0.5;\n" +
-            "yuv.y = texture2D(videoFrameUV, texCoord).y - 0.5;\n" +
+            "yuv.z = texture2D(videoFrameUV, texCoord).r - 0.5;\n" +
+            "yuv.y = texture2D(videoFrameUV, texCoord).a - 0.5;\n" +
             "}else if(yuvMode == 4.0){\n" +//I420
-            "yuv.y = texture2D(videoFrameUV, texCoord).x - 0.5;\n" +
-            "yuv.z = texture2D(videoFrameV, texCoord).y - 0.5;\n" +
+            "yuv.y = texture2D(videoFrameUV, texCoord).a - 0.5;\n" +
+            "yuv.z = texture2D(videoFrameV, texCoord).a - 0.5;\n" +
             "}else if(yuvMode == 5.0){\n" +//YV12
-            "yuv.z = texture2D(videoFrameUV, texCoord).x - 0.5;\n" +
-            "yuv.y = texture2D(videoFrameV, texCoord).y - 0.5;\n" +
+            "yuv.z = texture2D(videoFrameUV, texCoord).a - 0.5;\n" +
+            "yuv.y = texture2D(videoFrameV, texCoord).a - 0.5;\n" +
             "}" +
             "rgb = M * yuv;\n" +
             "gl_FragColor = vec4(rgb,1.0);\n" +
@@ -80,11 +82,7 @@ class SourceYuvRenderer extends SourceRenderer {
         initCameraRendering();
     }
 
-     public void setYuvMode(float yuvMode) {
-         this.yuvMode = yuvMode;
-     }
-
-     private boolean textureInit = false;
+    private boolean textureInit = false;
 
     private void initializeTexture() {
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, cameraTextureYID);
@@ -106,14 +104,16 @@ class SourceYuvRenderer extends SourceRenderer {
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 
         frameRenderBuffer.position(previewWidth * previewHeight);
-        if(yuvMode == 2.0 ||yuvMode == 3.0) {//YUV420P GL_LUMINANCE_ALPHA 亮度 透明
+        if (yuvMode == 2 || yuvMode == 3) {//YUV420P GL_LUMINANCE_ALPHA 亮度 透明
             GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE_ALPHA, previewWidth / 2,
                     previewHeight / 2, 0, GLES20.GL_LUMINANCE_ALPHA, GLES20.GL_UNSIGNED_BYTE,
                     frameRenderBuffer);
-        }else {//YUV420SP
+//            LogUtils.i("YUV420P glTexImage2D cameraTextureUVID");
+        } else {//YUV420SP
             GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_ALPHA, previewWidth / 2,
                     previewHeight / 2, 0, GLES20.GL_ALPHA, GLES20.GL_UNSIGNED_BYTE,
                     frameRenderBuffer);
+//            LogUtils.i("YUV420SP glTexImage2D cameraTextureUVID");
 
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, cameraTextureVID);
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
@@ -126,6 +126,7 @@ class SourceYuvRenderer extends SourceRenderer {
             GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_ALPHA, previewWidth / 2,
                     previewHeight / 2, 0, GLES20.GL_ALPHA, GLES20.GL_UNSIGNED_BYTE,
                     frameRenderBuffer);
+//            LogUtils.i("YUV420SP glTexImage2D cameraTextureVID");
         }
 
     }
@@ -211,14 +212,16 @@ class SourceYuvRenderer extends SourceRenderer {
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 
         frameRenderBuffer.position(previewWidth * previewHeight);
-        if(yuvMode == 2.0 ||yuvMode == 3.0) {//YUV420P GL_LUMINANCE_ALPHA 亮度 透明
-            GLES20.glTexSubImage2D(GLES20.GL_TEXTURE_2D, 0, 0, 0,  previewWidth / 2,
-                    previewHeight / 2,  GLES20.GL_LUMINANCE_ALPHA, GLES20.GL_UNSIGNED_BYTE,
+        if (yuvMode == 2 || yuvMode == 3) {//YUV420P GL_LUMINANCE_ALPHA 亮度 透明
+            GLES20.glTexSubImage2D(GLES20.GL_TEXTURE_2D, 0, 0, 0, previewWidth / 2,
+                    previewHeight / 2, GLES20.GL_LUMINANCE_ALPHA, GLES20.GL_UNSIGNED_BYTE,
                     frameRenderBuffer);
-        }else {//YUV420SP
-            GLES20.glTexSubImage2D(GLES20.GL_TEXTURE_2D, 0,0, 0,  previewWidth / 2,
+//            LogUtils.i("YUV420P glTexSubImage2D cameraTextureUVID");
+        } else {//YUV420SP
+            GLES20.glTexSubImage2D(GLES20.GL_TEXTURE_2D, 0, 0, 0, previewWidth / 2,
                     previewHeight / 2, GLES20.GL_ALPHA, GLES20.GL_UNSIGNED_BYTE,
                     frameRenderBuffer);
+//            LogUtils.i("YUV420SP glTexSubImage2D cameraTextureUVID");
 
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, cameraTextureVID);
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
@@ -228,9 +231,10 @@ class SourceYuvRenderer extends SourceRenderer {
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 
             frameRenderBuffer.position(previewWidth * previewHeight + (previewWidth * previewHeight / 2));
-            GLES20.glTexSubImage2D(GLES20.GL_TEXTURE_2D, 0,0, 0,  previewWidth / 2,
-                    previewHeight / 2,  GLES20.GL_ALPHA, GLES20.GL_UNSIGNED_BYTE,
+            GLES20.glTexSubImage2D(GLES20.GL_TEXTURE_2D, 0, 0, 0, previewWidth / 2,
+                    previewHeight / 2, GLES20.GL_ALPHA, GLES20.GL_UNSIGNED_BYTE,
                     frameRenderBuffer);
+//            LogUtils.i("YUV420SP glTexSubImage2D cameraTextureVID");
         }
 
         GLES20.glDepthFunc(GLES20.GL_LEQUAL);
@@ -256,10 +260,13 @@ class SourceYuvRenderer extends SourceRenderer {
 
         GLES20.glUniform1i(cameraUVUniformHandle, 1);
 
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, cameraTextureVID);
+        if (yuvMode == 4 || yuvMode == 5) {
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, cameraTextureVID);
 
-        GLES20.glUniform1i(cameraVUniformHandle, 2);
+            GLES20.glUniform1i(cameraVUniformHandle, 2);
+        }
+
         GLES20.glUniformMatrix4fv(cameraMVPMatrixHandle, 1, false, mvpMatrix, 0);
 
         GLES20.glUniform1f(cameraYuvModeUniformHandle, yuvMode);
@@ -278,25 +285,28 @@ class SourceYuvRenderer extends SourceRenderer {
 //        GLES20.glUseProgram(0);
     }
 
-     @Override
-     public void onNewFrame(byte[] data, int width, int height, int ImageFormat, ICameraEngine.BufferCallback bufferCallback) {
+    @Override
+    public void onNewFrame(byte[] data, int width, int height, int ImageFormat, ICameraEngine.BufferCallback bufferCallback) {
 //        LogUtil.Logi("Thread:" + Thread.currentThread().getName() + "  setNV21Data.nv21Data:"  + data[0]+"/"+data[data.length-1]);
-         if (!bufferInit) {
-             initFrameRenderBuffer((width / 2) * (height / 2));
-         }
-         yuvMode = ImageFormat;
-         isReady = true;
-         if (runnableQueue.isEmpty()) {
-             queueEvent(() -> {
-                 putRenderBuffer(data);
-                 if(bufferCallback!=null)
+        if (!bufferInit) {
+            initFrameRenderBuffer((width / 2) * (height / 2));
+        }
+        if (yuvMode != ImageFormat) {
+            yuvMode = ImageFormat;
+            LogUtils.i("onNewFrame yuvMode ：" + yuvMode);
+        }
+        isReady = true;
+        if (runnableQueue.isEmpty()) {
+            queueEvent(() -> {
+                putRenderBuffer(data);
+                if (bufferCallback != null)
                     bufferCallback.addCallbackBuffer(data);
-             });
-         }
-     }
+            });
+        }
+    }
 
-     @Override
-     public void onError(int error) {
+    @Override
+    public void onError(int error) {
 
-     }
- }
+    }
+}
