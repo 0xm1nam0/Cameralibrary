@@ -21,6 +21,7 @@ public abstract class BaseVision extends LoopThread implements IVision, ICameraE
     protected int frameWidth, frameHeight;
     protected int sleepTime = 0;
     protected boolean need2Recognize = false;
+    protected int type;
 
     enum State {
         RECOGNIZED,
@@ -45,12 +46,13 @@ public abstract class BaseVision extends LoopThread implements IVision, ICameraE
 //                    LogUtils.d("onNewFrame put data");
                     recognizerBuffer.position(0);
                     recognizerBuffer.put(data);
+                    this.type = type;
                     need2Process = true;
                 }
                 lock.unlock();
             }
         } else if (processState == State.TRACKING) {
-            tracking(data, width, height);
+            tracking(data, width, height,type);
         }
         RendererController.Instance().onNewFrame(data, width, height, type, bufferCallback);
     }
@@ -74,7 +76,7 @@ public abstract class BaseVision extends LoopThread implements IVision, ICameraE
 //            LogUtils.d("loop");
             if (need2Recognize) {
 //                LogUtils.d("recognize");
-                recognize(recognizerBuffer.array(), frameWidth, frameHeight);
+                recognize(recognizerBuffer.array(), frameWidth, frameHeight,type);
             }
             recognizerBuffer.clear();
             lock.unlock();
