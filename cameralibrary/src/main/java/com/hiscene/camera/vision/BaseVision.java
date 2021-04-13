@@ -15,7 +15,6 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public abstract class BaseVision extends LoopThread implements IVision, ICameraEngine.OnNewFrameListener {
     protected ByteBuffer recognizerBuffer = null;
-    protected boolean bufferInit = false;
     protected ReentrantLock lock = new ReentrantLock();
     protected boolean need2Process = false;
     protected int frameWidth, frameHeight;
@@ -23,36 +22,29 @@ public abstract class BaseVision extends LoopThread implements IVision, ICameraE
     protected boolean need2Recognize = false;
     protected int type;
 
-    enum State {
-        RECOGNIZED,
-        TRACKING,
-        NONE
-    }
 
-    private State processState = State.NONE;
+    private VisionState processState = VisionState.NONE;
 
 
     @Override
     public void onNewFrame(byte[] data, int width, int height, int type, ICameraEngine.BufferCallback bufferCallback) {
         frameWidth = width;
         frameHeight = height;
-        if (!bufferInit) {
+        if (recognizerBuffer == null) {
             recognizerBuffer = ByteBuffer.allocate(data.length);
-            bufferInit = true;
         }
-        if (processState == State.NONE) {
-            if (lock.tryLock()) {
-                if (!need2Process) {
+        if (need2Recognize && lock.tryLock()) {
+            if (processState == VisionState.NONE) {
 //                    LogUtils.d("onNewFrame put data");
-                    recognizerBuffer.position(0);
-                    recognizerBuffer.put(data);
-                    this.type = type;
-                    need2Process = true;
-                }
-                lock.unlock();
+                recognizerBuffer.position(0);
+                recognizerBuffer.put(data);
+                this.type = type;
+                need2Process = true;
+                processState = VisionState.RECOGNIZED;
+            } else if (processState == VisionState.TRACKING) {
+                processState = tracking(data, width, height, type);
             }
-        } else if (processState == State.TRACKING) {
-            tracking(data, width, height,type);
+            lock.unlock();
         }
         RendererController.Instance().onNewFrame(data, width, height, type, bufferCallback);
     }
@@ -69,14 +61,13 @@ public abstract class BaseVision extends LoopThread implements IVision, ICameraE
 
     @Override
     public void loop() {
-        if (processState == State.NONE && need2Process) {
+        if (processState == VisionState.RECOGNIZED && need2Process) {
             lock.lock();
-            processState = State.NONE;
             need2Process = false;
 //            LogUtils.d("loop");
             if (need2Recognize) {
 //                LogUtils.d("recognize");
-                recognize(recognizerBuffer.array(), frameWidth, frameHeight,type);
+                processState = recognize(recognizerBuffer.array(), frameWidth, frameHeight, type);
             }
             recognizerBuffer.clear();
             lock.unlock();

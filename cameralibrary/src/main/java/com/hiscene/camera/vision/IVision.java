@@ -8,9 +8,9 @@ package com.hiscene.camera.vision;
  */
 public interface IVision {
 
-    void recognize(byte[] data, int width, int height, int type);
+    VisionState recognize(byte[] data, int width, int height, int type);
 
-    void tracking(byte[] data, int width, int height, int type);
+    VisionState tracking(byte[] data, int width, int height, int type);
 
     void startRecognize();
 
