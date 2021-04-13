@@ -32,7 +32,7 @@ public class ZxingVision extends BaseVision {
     Hashtable<DecodeHintType, Object> hints;
 
     @Override
-    public void recognize(byte[] data, int width, int height) {
+    public VisionState recognize(byte[] data, int width, int height,int type) {
         //modify here 转竖屏
 /*        byte[] rotatedData = new byte[data.length];
         for (int y = 0; y < height; y++) {
@@ -62,11 +62,12 @@ public class ZxingVision extends BaseVision {
                 multiFormatReader.reset();
             }
         }
+        return VisionState.NONE;
     }
 
     @Override
-    public void tracking(byte[] data, int width, int height) {
-
+    public VisionState tracking(byte[] data, int width, int height,int type) {
+        return VisionState.NONE;
     }
 
     @Override

@@ -122,7 +122,7 @@ class SourceYuvRenderer extends SourceRenderer {
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 
-            frameRenderBuffer.position(previewWidth * previewHeight + (previewWidth * previewHeight / 2));
+            frameRenderBuffer.position(previewWidth * previewHeight + (previewWidth * previewHeight / 4));
             GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_ALPHA, previewWidth / 2,
                     previewHeight / 2, 0, GLES20.GL_ALPHA, GLES20.GL_UNSIGNED_BYTE,
                     frameRenderBuffer);
@@ -230,7 +230,7 @@ class SourceYuvRenderer extends SourceRenderer {
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 
-            frameRenderBuffer.position(previewWidth * previewHeight + (previewWidth * previewHeight / 2));
+            frameRenderBuffer.position(previewWidth * previewHeight + (previewWidth * previewHeight / 4));
             GLES20.glTexSubImage2D(GLES20.GL_TEXTURE_2D, 0, 0, 0, previewWidth / 2,
                     previewHeight / 2, GLES20.GL_ALPHA, GLES20.GL_UNSIGNED_BYTE,
                     frameRenderBuffer);
